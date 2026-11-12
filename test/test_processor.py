@@ -7,6 +7,7 @@ def test_get_image_info(tmp_path):
 
     image = Image.new("RGB", (600, 400))
     image.save(image_path)
+    image.close()
 
     with Image.open(image_path) as opened_image:
         result = get_image_info(opened_image, image_path)
@@ -21,6 +22,7 @@ def test_get_image_info(tmp_path):
 
     image = Image.new("LA", (500, 500))
     image.save(image_path)
+    image.close()
 
     with Image.open(image_path) as opened_image:
         result = get_image_info(opened_image, image_path)
@@ -36,6 +38,7 @@ def test_resize_image(tmp_path):
 
     image = Image.new("RGB", (400, 400))
     image.save(image_path)
+    image.close()
 
     with Image.open(image_path) as opened_image:
         result = resize_image(opened_image, (100, 100))
@@ -56,6 +59,9 @@ def test_resize_image(tmp_path):
     with pytest.raises(TypeError):
         resize_image(image=image, size=("", True))
 
+    with pytest.raises(TypeError):
+        resize_image(image=image, size=(False, True))
+
     with pytest.raises(ValueError):
         resize_image(image=image, size=(9, 10, 10))
 
@@ -67,6 +73,7 @@ def test_rotate_image(tmp_path):
 
     image = Image.new(mode="RGB", size=(100, 200))
     image.save(image_path)
+    image.close()
 
     with Image.open(image_path) as opened_image:
         result = rotate_image(image=opened_image, angle=90)
@@ -83,11 +90,21 @@ def test_rotate_image(tmp_path):
     with pytest.raises(TypeError):
         rotate_image(image, "Unknown angle")
 
+    with pytest.raises(TypeError):
+        rotate_image(image, True)
+
+    with pytest.raises(ValueError):
+        rotate_image(image, float("nan"))
+
+    with pytest.raises(ValueError):
+        rotate_image(image, float("inf"))
+
 def test_grayscale_image(tmp_path):
     image_path = tmp_path / "temp.png"
 
     image = Image.new(mode="RGB", size=(100, 200))
     image.save(image_path)
+    image.close()
 
     with Image.open(image_path) as opened_image:
         result = grayscale_image(image=opened_image)
@@ -96,8 +113,28 @@ def test_grayscale_image(tmp_path):
 
     image = Image.new(mode="RGBA", size=(100, 200))
     image.save(image_path)
+    image.close()
 
     with Image.open(image_path) as opened_image:
         result = grayscale_image(image=opened_image)
 
     assert result.mode == "LA"
+
+    image = Image.new(mode="LA", size=(100, 200))
+    image.save(image_path)
+    image.close()
+
+    with Image.open(image_path) as opened_image:
+        result = grayscale_image(image=opened_image)
+
+    assert result.mode == "LA"
+
+    image = Image.new(mode="L", size=(100, 200))
+    image.save(image_path)
+    image.close()
+
+    with Image.open(image_path) as opened_image:
+        result = grayscale_image(image=opened_image)
+
+    assert result.mode == "L"
+

@@ -1,6 +1,8 @@
-from PIL import Image
-from pathlib import Path
 from math import isfinite
+from pathlib import Path
+
+from PIL import Image
+
 
 def get_image_info(
     image: Image.Image,
@@ -57,7 +59,7 @@ def grayscale_image(image: Image.Image) -> Image.Image:
 
     target_mode = "L"
 
-    if image.mode == "RGBA":
+    if image.mode in ("RGBA", "LA"):
         target_mode = "LA"
 
     return image.convert(target_mode)
